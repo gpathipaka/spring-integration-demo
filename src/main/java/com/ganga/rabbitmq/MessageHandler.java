@@ -21,9 +21,9 @@ public class MessageHandler implements MessageListener {
 		String msg = new String(message.getBody());
       //  System.out.println("Text: " +msg);
 		if(++count%2 == 0) {
-			oddNumbersChannel.send( MessageBuilder.withPayload( msg ).build() );
-		} else {
 			evenNumbersChannel.send( MessageBuilder.withPayload( msg ).build() );
+		} else {
+			oddNumbersChannel.send( MessageBuilder.withPayload( msg ).build() );
 		}
 	}
 
