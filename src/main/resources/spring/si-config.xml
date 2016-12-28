@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+  xmlns:int="http://www.springframework.org/schema/integration"
+  xmlns:int-xml="http://www.springframework.org/schema/integration/xml"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/integration
+    http://www.springframework.org/schema/integration/spring-integration.xsd
+    http://www.springframework.org/schema/integration/xml
+    http://www.springframework.org/schema/integration/xml/spring-integration-xml.xsd
+    http://www.springframework.org/schema/rabbit
+    https://www.springframework.org/schema/rabbit/spring-rabbit-1.6.xsd">
+    
+   <rabbit:connection-factory id="rabbitConnectionFactory" host="localhost" username="guest" password="guest"/>
+   <rabbit:admin connection-factory="rabbitConnectionFactory"/>
+   <rabbit:template id="amqpTemplate" connection-factory="rabbitConnectionFactory"/>
+   
+   <rabbit:queue auto-delete="false" id="springQueue" name="spring.queue" durable="true"/>
+   <rabbit:listener-container>
+   	<rabbit:listener queues="springQueue" ref="messageListener"/>
+   </rabbit:listener-container>
+   
+   <bean id="messageListener" class="com.ganga.rabbitmq.MessageHandler"/>
+   
+     <!-- Bindings -->
+
+    <rabbit:fanout-exchange name="amq.fanout">
+        <rabbit:bindings>
+            <rabbit:binding queue="springQueue"/>
+        </rabbit:bindings>
+    </rabbit:fanout-exchange>
+   
+   <int:channel id="oddNumbersChannel"/>
+   <int:channel id="evenNumbersChannel"/>
+
+   <int:service-activator ref="evenNumberProcessorImpl" input-channel="evenNumbersChannel" method="process"/>
+   <int:service-activator ref="oddNumberProcessorImpl" input-channel="oddNumbersChannel" method="process"/>   
+    
+</beans>
